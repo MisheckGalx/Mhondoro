@@ -1,20 +1,25 @@
-import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+from flask_migrate import Migrate  # Import Flask-Migrate
+from config import Config
 
 db = SQLAlchemy()
-migrate = Migrate()
+migrate = Migrate()  # Initialize Migrate
 
 def create_app():
+    # Create the Flask app instance
     app = Flask(__name__)
-    app.config.from_object('config.Config')  # Ensure the correct import path
-
+    
+    # Load configuration from the Config class
+    app.config.from_object(Config)
+    
+    # Initialize the database with the app
     db.init_app(app)
+    
+    # Initialize Flask-Migrate with app and db
     migrate.init_app(app, db)
-
-    # Register blueprints if any
-    from app.routes import main
-    app.register_blueprint(main)
-
+    
+    # Import and register blueprints or routes after app is created
+    # from app import routes  # Uncomment if you have routes defined
+    
     return app
