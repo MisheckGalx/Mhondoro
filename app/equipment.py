@@ -47,3 +47,24 @@ def delete_equipment(id):
     db.session.commit()
 
     return jsonify({"message": "Equipment deleted successfully!"}), 200
+
+from geopy.geocoders import Nominatim
+
+class Equipment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(500), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
+
+    # Optional: Automatically geocode location on creation
+    def set_location(self, location_name):
+        geolocator = Nominatim(user_agent="mhondoro_app")
+        location = geolocator.geocode(location_name)
+        if location:
+            self.latitude = location.latitude
+            self.longitude = location.longitude
