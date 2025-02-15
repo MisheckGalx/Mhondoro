@@ -1,18 +1,20 @@
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
-# Initialize the SQLAlchemy object
 db = SQLAlchemy()
+migrate = Migrate()
 
 def create_app():
-    # Initialize the Flask application
     app = Flask(__name__)
+    app.config.from_object('config.Config')  # Ensure the correct import path
 
-    # Set the configuration values
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mhondoro.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable modification tracking to save resources
-
-    # Initialize SQLAlchemy with the app
     db.init_app(app)
+    migrate.init_app(app, db)
+
+    # Register blueprints if any
+    from app.routes import main
+    app.register_blueprint(main)
 
     return app
