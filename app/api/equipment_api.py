@@ -23,6 +23,22 @@ def get_all_categories():
     categories = Category.query.all()
     return jsonify([{'id': category.id, 'name': category.name} for category in categories])
 
+# Add pagination functionality to get equipment and reviews
+@equipment_api.route('/equipment', methods=['GET'])
+def get_all_equipment():
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    equipment_list = Equipment.query.paginate(page, per_page, False)
+    return jsonify({
+        'equipments': [{
+            'id': equip.id,
+            'name': equip.name,
+            'description': equip.description
+        } for equip in equipment_list.items],
+        'total': equipment_list.total,
+        'pages': equipment_list.pages
+    })
+
 # Create Equipment with Category
 @equipment_api.route('/equipment', methods=['POST'])
 def create_equipment():

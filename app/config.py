@@ -1,7 +1,34 @@
 import os
+from flask_uploads import UploadSet, configure_uploads, IMAGES
 
+# Configuration class
 class Config:
-    SECRET_KEY = os.getenv('SECRET_KEY', 'your_secret_key')
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///mhondoro.db')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'your_jwt_secret')
+    # General settings
+    SECRET_KEY = os.getenv('SECRET_KEY', 'your_secret_key')  # Default secret key, can be overridden via env variable
+    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'your_jwt_secret')  # JWT secret key, can be overridden
+    
+    # Database settings
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///mhondoro.db')  # Default SQLite URI
+    SQLALCHEMY_TRACK_MODIFICATIONS = False  # Disable unnecessary modification tracking for SQLAlchemy
+    
+    # Upload settings
+    UPLOADED_PHOTOS_DEST = os.getenv('UPLOADED_PHOTOS_DEST', 'app/static/uploads')  # Folder where photos are uploaded
+
+    # Mail settings
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 465
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = os.getenv('MAIL_USERNAME', 'your-email@gmail.com')  # Email username from environment variable
+    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', 'your-email-password')  # Email password from environment variable
+    MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER', 'your-email@gmail.com')  # Default sender email
+
+
+# Initialize UploadSet for image files
+photos = UploadSet('photos', IMAGES)
+
+# Function to configure the app
+def init_app(app):
+    # Set configuration for the app from Config class
+    app.config.from_object(Config)
+    # Configure Flask-Uploads with the app
+    configure_uploads(app, photos)
