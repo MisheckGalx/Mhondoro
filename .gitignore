@@ -1,0 +1,70 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env
+*.env
+
+# Flask & SQLAlchemy
+instance/
+migrations/
+
+# SQLite database
+*.sqlite3
+*.db
+
+# PostgreSQL dump files
+*.dump
+*.sql
+
+# Logs & Debugging
+logs/
+*.log
+*.out
+*.err
+debug.log
+
+# MacOS system files
+.DS_Store
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node modules (if frontend is included)
+node_modules/
+
+# Python dependencies
+*.egg-info/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Compiled C extensions
+*.so
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Test coverage reports
+htmlcov/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.pytest_cache/
+
+# Build artifacts
+build/
+dist/
+*.egg
+MANIFEST
+
+# Gunicorn logs
+gunicorn.log
+gunicorn.error.log
