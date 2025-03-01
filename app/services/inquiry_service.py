@@ -1,4 +1,4 @@
-from models import Inquiry, db
+from app.models import Inquiry, db
 
 def create_inquiry(user_id, data):
     try:

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
-from services.inquiry_service import create_inquiry, get_inquiries
+from app.services.inquiry_service import create_inquiry, get_inquiries
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.models import Inquiry, db
 
 inquiries_bp = Blueprint("inquiries", __name__)
 

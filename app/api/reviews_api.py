@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from services.review_service import create_review, get_reviews
+from app.services.review_service import create_review, get_reviews
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 reviews_bp = Blueprint("reviews", __name__)

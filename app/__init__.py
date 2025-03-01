@@ -3,17 +3,17 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from app.config import Config
 
-# Initialize the app, db, and migrate
-app = Flask(__name__)
-app.config.from_object(Config)
+db = SQLAlchemy()
+migrate = Migrate()
 
-# Initialize the database
-db = SQLAlchemy(app)
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
 
-# Initialize migration
-migrate = Migrate(app, db)
+    db.init_app(app)
+    migrate.init_app(app, db)
 
-# Initialize your routes
-from app import views
+    # Comment or remove this line since views.py is missing
+    # from app import views
 
-# Initialize other extensions like login manager, etc.
+    return app

@@ -1,5 +1,5 @@
 import os
-from flask_reuploaded import UploadSet, configure_uploads, IMAGES
+from flask_uploads import UploadSet, configure_uploads, IMAGES
 from werkzeug.utils import secure_filename
 
 # Configuration class

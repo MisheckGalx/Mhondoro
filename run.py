@@ -1,6 +1,6 @@
 from app import create_app
-from api.inquiries_api import inquiries_bp
-from api.reviews_api import reviews_bp
+from app.api.inquiries_api import inquiries_bp
+from app.api.reviews_api import reviews_bp
 
 app = create_app()  # Create the Flask app using the factory function
 
