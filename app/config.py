@@ -1,5 +1,6 @@
 import os
-from flask_uploads import UploadSet, configure_uploads, IMAGES
+from flask_reuploaded import UploadSet, configure_uploads, IMAGES
+from werkzeug.utils import secure_filename
 
 # Configuration class
 class Config:
@@ -13,6 +14,8 @@ class Config:
     
     # Upload settings
     UPLOADED_PHOTOS_DEST = os.getenv('UPLOADED_PHOTOS_DEST', 'app/static/uploads')  # Folder where photos are uploaded
+    UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')  # Alternative folder for uploads
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}  # Allowed file extensions for uploads
 
     # Mail settings
     MAIL_SERVER = 'smtp.gmail.com'
@@ -22,13 +25,5 @@ class Config:
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', 'your-email-password')  # Email password from environment variable
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER', 'your-email@gmail.com')  # Default sender email
 
-
 # Initialize UploadSet for image files
 photos = UploadSet('photos', IMAGES)
-
-# Function to configure the app
-def init_app(app):
-    # Set configuration for the app from Config class
-    app.config.from_object(Config)
-    # Configure Flask-Uploads with the app
-    configure_uploads(app, photos)
