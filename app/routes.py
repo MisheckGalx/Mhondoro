@@ -1,17 +1,47 @@
-from flask import Flask, request, jsonify, Blueprint
-from app import db  # Assuming you have SQLAlchemy initialized in app.py
-from app.models import User, Equipment
-import jwt
+import os
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import photos
-from app.models import Equipment
+import jwt
+from datetime import datetime, timedelta
 
+# Initialize the Flask app and extensions
 app = Flask(__name__)
 
 # Secret key for JWT encoding and decoding
 app.config['SECRET_KEY'] = 'your_secret_key'
 
-# Utility functions for JWT
+# Database settings
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mhondoro.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Upload settings
+app.config['UPLOADED_PHOTOS_DEST'] = 'app/static/uploads'
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
+
+# Initialize the extensions
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+# Models
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+
+class Equipment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    category = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(200), nullable=True)
+    price = db.Column(db.Float, nullable=False)
+    available = db.Column(db.Boolean, default=True)
+    image_filename = db.Column(db.String(120), nullable=True)
+
+# JWT Utility Functions
 def encode_auth_token(user_id):
     try:
         payload = {
@@ -32,8 +62,10 @@ def decode_auth_token(auth_token):
     except jwt.InvalidTokenError:
         return 'Invalid token.'
 
+# Routes
+
 # Admin: List all users
-@admin_api.route('/users', methods=['GET'])
+@app.route('/admin/users', methods=['GET'])
 def list_users():
     users = User.query.all()
     return jsonify([{
@@ -43,7 +75,7 @@ def list_users():
     } for user in users])
 
 # Admin: List all equipment
-@admin_api.route('/equipment', methods=['GET'])
+@app.route('/admin/equipment', methods=['GET'])
 def list_equipment():
     equipment_list = Equipment.query.all()
     return jsonify([{
@@ -81,8 +113,17 @@ def login_user():
         return jsonify({"token": token}), 200
     return jsonify({"message": "Invalid credentials"}), 401
 
-# Add image upload functionality for the equipment model.
-@equipment_api.route('/equipment/<int:id>/upload_image', methods=['POST'])
+# Equipment API (example route)
+@app.route('/equipments', methods=['GET'])
+def get_equipments():
+    equipments = Equipment.query.all()
+    return jsonify([{
+        'id': eq.id, 'name': eq.name, 'category': eq.category, 
+        'description': eq.description, 'price': eq.price, 'available': eq.available
+    } for eq in equipments])
+
+# Image Upload for Equipment
+@app.route('/equipment/<int:id>/upload_image', methods=['POST'])
 def upload_image(id):
     equipment = Equipment.query.get(id)
     if not equipment:
@@ -92,20 +133,30 @@ def upload_image(id):
         return jsonify({"message": "No file uploaded"}), 400
 
     image = request.files['image']
-    filename = photos.save(image)
+    filename = secure_filename(image.filename)
+    image.save(os.path.join(app.config['UPLOADED_PHOTOS_DEST'], filename))
     equipment.image_filename = filename
     db.session.commit()
 
     return jsonify({"message": "Image uploaded successfully", "filename": filename}), 200
 
-# Equipment API (example route)
-@app.route('/equipments', methods=['GET'])
-def get_equipments():
-    equipments = Equipment.query.all()
-    return jsonify([{
-        'id': eq.id, 'name': eq.name, 'category': eq.category, 
-        'description': eq.description, 'price': eq.price, 'available': eq.available
-    } for eq in equipments])
+# File upload route (for general use)
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({"message": "No file part"}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"message": "No selected file"}), 400
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOADED_PHOTOS_DEST'], filename))
+        return jsonify({"message": "File uploaded successfully", "filename": filename}), 201
+    return jsonify({"message": "Invalid file type"}), 400
+
+# Allowed file type checker
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 if __name__ == '__main__':
     app.run(debug=True)

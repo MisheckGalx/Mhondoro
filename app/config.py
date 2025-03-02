@@ -25,5 +25,9 @@ class Config:
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', 'your-email-password')  # Email password from environment variable
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER', 'your-email@gmail.com')  # Default sender email
 
-# Initialize UploadSet for image files
-photos = UploadSet('photos', IMAGES)
+    # Initialize the upload set for images
+    photos = UploadSet('photos', IMAGES)
+
+    def init_app(self, app):
+        # Configure upload set
+        configure_uploads(app, self.photos)
